@@ -17,6 +17,11 @@
         "type": "string",
         "required": true
       },
+      "apiKey": {
+        "title": "Custom Ecobee API Key",
+        "description": "For added security you can optionally provide your own API key.",
+        "type": "string"
+      },
       "thermostatIds": {
         "title": "Thermostat Serial Numbers",
         "description": "List of thermostat serial numbers to control. You can leave blank if you only have a single thermostat.",

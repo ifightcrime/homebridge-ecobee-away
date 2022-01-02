@@ -10,6 +10,7 @@ export class AuthTokenManager {
 
 	constructor(private readonly platform: EcobeeAPIPlatform) {
 		this.refreshToken = platform.config.refreshToken;
+		this.ecobeeAPIKey = platform.config.apiKey || this.ecobeeAPIKey;
 	}
 
 	static configureForPlatform(homebridge: EcobeeAPIPlatform) {

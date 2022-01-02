@@ -6,8 +6,8 @@ import querystring from 'querystring';
 
 const ecobeeAPIKey = 'LvHbdQIXI5zoGoZW2uyWk2Ejfb1vtQWq';
 
-export async function acquireRefreshToken() {
-	const pinRequest = await axios.get('https://api.ecobee.com/authorize', { params: { response_type: 'ecobeePin', client_id: ecobeeAPIKey, scope: 'smartWrite' } });
+export async function acquireRefreshToken(apiKey: string) {
+	const pinRequest = await axios.get('https://api.ecobee.com/authorize', { params: { response_type: 'ecobeePin', client_id: apiKey, scope: 'smartWrite' } });
 	const pinData = pinRequest.data;
 
 	const pin = pinData.ecobeePin;
@@ -20,19 +20,19 @@ export async function acquireRefreshToken() {
 	console.log('Waiting for response from Ecobee API. This may take a minute or two...');
 
 	// Loop the auth API until we get a result, this will re-schedule itself and will resolve when we have an actual result
-	const tokenData = await checkForTokenResult(code, pollInterval);
+	const tokenData = await checkForTokenResult(code, pollInterval, apiKey);
 
 	return tokenData;
 }
 
-async function checkForTokenResult(authCode: string, interval: number) {
+async function checkForTokenResult(authCode: string, interval: number, apiKey: string) {
 	const keepTrying = true;
 	while (keepTrying) {
 		try {
 			const authRequest = await axios.post('https://api.ecobee.com/token', querystring.stringify({
 				grant_type: 'ecobeePin',
 				code: authCode,
-				client_id: ecobeeAPIKey,
+				client_id: apiKey,
 			}));
 			const authData = authRequest.data;
 
@@ -67,7 +67,8 @@ async function checkForTokenResult(authCode: string, interval: number) {
 export async function logRefreshToken() {
 	console.log('This CLI will provide you with a refresh token which you can use to configure homebridge-ecobee-away.');
 
-	const token = await acquireRefreshToken();
+	const customApiKey = await requestInput('\nCustom API Key (Optional): ');
+	const token = await acquireRefreshToken(customApiKey || ecobeeAPIKey);
 
 	console.log('\nSuccessfully logged in to Ecobee. Please add the following to your config:\n');
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
